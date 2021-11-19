@@ -1,0 +1,367 @@
+---
+title: "Tarea 1"
+author: "Alonso Delgado,"
+date: "18/11/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+## Parte 1
+
+### 1. Calcula los valores numéricos aproximados de
+
+#### a. (0.3*0.15)/(0.3*0.15+0.2*0.8+0.5*0.12)
+```{r}
+(0.3*0.15)/(0.3*0.15+0.2*0.8+0.5*0.12)
+```
+#### Respuesta: 0.1698113
+
+#### b. ((5^6)/6!)*e^-5
+```{r}
+((5^6)/factorial(6))*exp(-5)
+```
+#### Respuesta: 0.1462228
+
+#### c. C(20,7)*0.4^7*0.6^13
+```{r}
+(factorial(20)/(factorial(7)*factorial(20-7)))*0.4^7*0.6^13
+```
+#### Respuesta: 0.1658823
+
+### 2. Realizar la siguiente suma
+
+#### a. 1+2+3+...+1000
+```{r}
+sum(seq(1:1000))
+```
+#### Respuesta: 500500
+
+#### b. 1+2+4+8+16+...+1024
+```{r}
+n <- c(0,1,2,3,4,5,6,7,8,9,10)
+sum(2^n)
+```
+#### Respuesta: 2047
+
+### 3. El vector "grupo" representa el grupo al que pertenece una serie de alumnos
+
+#### a. ¿Cuántos elementos tiene?
+```{r}
+length(grupo)
+```
+#### Respuesta: Tiene 192 elementos
+
+#### b. ¿En qué posiciones del vector está la letra “A?”
+```{r}
+grupo[grupo=="A"]
+```
+#### Respuesta: La letra "A" esta en las posiciones 2,8,17,21,28,84,101,108,111,115,123,136,190,192
+
+### 4. El vector "nota" representa la nota de un examen de los alumnos que estan en los grupos del vector "grupo".
+
+#### a. ¿Cuanto suman todas las notas?
+```{r}
+sum(nota)
+```
+#### Respuesta: Todas la notas suman 962
+
+#### b.¿Cual es la media aritmética de todas las notas?
+```{r}
+mean(nota)
+```
+#### Respuesta: La media es de 5.010417
+
+
+#### c. ¿En qué posiciones están las notas mayores de 7.0?
+```{r}
+nota[nota > 7.0]
+```
+#### Respuesta: Estan en las posiciones 81,103,120 y 151
+
+#### d. Visualiza las notas ordenadas de mayor a menor
+```{r}
+sort(nota, decreasing = TRUE)
+```
+#### Respuesta: El orden de mayor a menor es 7.7, 7.5, ..., 2.5, 1.7
+
+#### e. ¿En qué posición está la nota máxima?
+```{r}
+nota[nota==max(nota)]
+```
+#### Respuesta: En la posicion 120
+
+### 5. A partir de los vectores "grupo" y "nota" definidos.
+
+#### a. Suma las notas de los 10 primeros alumnos del vector
+```{r}
+sum(nota[1:10])
+```
+#### Respuesta: Las 10 primeras notas suman 51.8
+
+#### b. ¿Cuántos alumnos hay del grupo C?
+```{r}
+length(grupo[grupo=="C"])
+```
+#### Respuesta: Hay 39 alumnos en el grupo C.
+
+#### c. ¿Cuántos alumnos han aprobado?
+```{r}
+length(nota[nota>=5.5])
+```
+#### Respuesta: Hay 73 alumnos aprobados.
+
+#### d. ¿Cuántos alumnos del grupo B han aprobado?
+```{r}
+al_ap_b <- (grupo == "B" & nota >= 5.5)
+length(al_ap_b[al_ap_b==T])
+```
+#### Respuesta: Hay 9 alumnos aprobados del grupo B.
+
+#### e. ¿Qué porcentaje de alumnos del grupo C han aprobado?
+```{r}
+x <- grupo == "C" & nota >= 5.5
+(length(x[x == T])/(length(grupo)))*100 # con respecto a todos
+```
+#### Respuesta: El 10.41667% del total de alumnos.
+
+#### f. ¿De qué grupos son la máxima y mínima notas de toda la muestra?
+```{r}
+max(nota)
+nota[nota==7.7]
+grupo[120]
+
+min(nota)
+nota[nota==1.7]
+grupo[142]
+```
+#### Respuesta: La maxima nota esta en el grupo E y la minima nota en el grupo B.
+
+#### g. Nota media de los alumnos de grupo A y B, juntos, considerando sólo a los que han aprobado.
+```{r}
+result <- data.frame(grupo,nota)
+result[result$grupo==c("A","B"),]
+nota_media <-result[result$grupo==c("A","B")&result$nota>=5.5,]
+mean(nota_media$nota)
+```
+#### Respuesta: La nota media es de 6.18
+
+### 6. Calcula el percentil 66 de las notas de todos los alumnos, y también de los alumnos del grupo C.
+```{r}
+quantile(result$nota,0.66)
+grupo_c <- result[result$grupo=="C",]
+quantile(grupo_c$nota,0.66)
+```
+#### Respuesta: Percentil 66 de todos los alumnos es 5.5 y el del grupo C es 5.808
+
+### 7. Un alumno tiene una nota de 4.9. ¿Qué porcentaje, del total de alumnos, tiene una nota menor o igual que la suya? ¿Y qué porcentaje tiene una nota mayor o igual que la suya?
+```{r}
+length(nota[nota<=4.9])
+length(nota[nota>=4.9])
+100*length(nota[nota<=4.9])/length(nota)
+100*length(nota[nota>=4.9])/length(nota)
+```
+#### Respuesta: El porcentaje que tiene una nota menor o igual es 46.875% y el porcentaje que tiene una nota mayor o igual es 56.25%
+
+### 8. Realiza el gráfico de diagramas de caja de las notas de cada grupo, para poder comparar el nivel de cada uno de ellos.
+```{r}
+boxplot(nota ~ grupo, data = result)
+```
+
+### 9. Si la variable "conc" recoge la concentración de plomo (en ppm) en el aire de cierta zona durante un día completo
+
+#### a. ¿Cuál ha sido la concentración máxima?
+```{r}
+max(conc)
+```
+#### Respuesta: Fue de 47.34
+
+#### b. ¿En cuántos de los muestreos se ha superado la concentración de 40.0 ppm?
+
+```{r}
+length(conc[conc > 40])
+```
+#### Respuesta: En 61 muestreos.
+
+#### c. ¿Cuál ha sido la concentración media del día?
+```{r}
+mean(conc)
+```
+#### Respuesta: 24.07229
+
+#### d. ¿Cuáles fueron las 10 mediciones más bajas del día?
+```{r}
+order(conc)
+conc[c(282, 283, 6, 9, 280, 271, 20, 11, 279, 278)]
+```
+#### Respuesta: Fueron 0.93  1.07  1.77  2.03 2.58  2.73  2.75  2.88  2.88  2.91
+
+#### e. Si la primera medida fue a las 00:00. ¿A qué hora del día se alcanzó la concentración máxima?
+```{r}
+length(conc)
+24*60
+24*60/length(conc)
+order(conc)
+5*(282-1)
+1405/60
+(23.41667-23)*60/100
+```
+#### Respuesta: La hora sera 23:25
+
+## Parte 2
+
+### 1. Graficar los puntos
+```{r}
+plot(x=c(1,2,3,4,5,6,7,8,9,10), y=c(1,4,6,8,25,36,49,61,81,100))
+```
+
+
+### 2. Ingresar la matriz A en RStudio
+```{r}
+i<-c(1,2,3,4,2,4,6,8,3,6,9,12)
+A <- matrix(i,ncol = 3,nrow = 4)
+A
+```
+
+### 3. Ingresar la matriz identidad de tamaño 3
+```{r}
+3*diag(3)
+```
+
+### 4. Crea una función que cree una matriz nula ingresando las dimensiones
+```{r}
+matrizN<-function(f,c){
+  P<-matrix(0,nrow = f,ncol = c)
+  return(P)
+}
+matrizN(5,3)
+```
+
+### 5. Modificar la matriz diag(4), para que se parezca a la matriz B
+```{r}
+B<-diag(4)
+B[1,1]<-0
+B[2,2]<-2
+B[3,3]<-3
+B[4,4]<-4
+B
+```
+
+###  6. Obtener la matriz transpuesta de A (ejercicio 2)
+```{r}
+t(A)
+```
+
+### 7. Realizar las siguientes operaciones  
+```{r}
+3*B
+```
+A+B #no tienen las mismas dimenciones
+#### A-B #no tienen las mismas dimenciones
+#### A%*%B no se puede por que las filas y columnas son diferentes
+
+### 8. Crea una función para calcular P^6
+```{r}
+fun_p <-function(e){
+  d<-c(1,-2,1,2,4,0,3,-2,1)
+  m<-matrix(d,ncol = 3)
+  r<-m^e
+  return(r)
+}
+fun_p(6)
+```
+
+### 9. Resolver el sistema de ecuaciones
+```{r}
+a <- rbind(c(3, -1, 1), c(9, -2, 1), c(3, 1, -2))
+b <- c(-1, -9, -9)
+solve(a,b)
+```
+
+### 10. Utilizando la ayuda de R, investigue para qué sirven las funciones eigen() y det()
+#### eigen()
+#### La función eigen calcula autovalores y autovectores de matrices numéricas (dobles, enteras, lógicas) o complejas.
+#### det()
+#### La función det calcula el determinante de una matriz. El determinante es una función genérica que devuelve  por separado el módulo del determinante, 
+##opcionalmente en la escala logarítmica, y el signo del determinante.
+
+### 11. Considerando las matrices
+```{r}
+B<- rbind(1:5, c(2,4,6,8,10), c(3,6,9,12,15),c(4,8,12,16,20),c(5,10,15,20,25)
+,c(7,14,21,28,35) ,c(8,16,24,32,40),c(9,18,27,36,45),c(10,20,30,40,50))
+B
+
+Bt<-cbind(1:5, c(2,4,6,8,10), c(3,6,9,12,15),c(4,8,12,16,20),c(5,10,15,20,25)
+          ,c(7,14,21,28,35) ,c(8,16,24,32,40),c(9,18,27,36,45),c(10,20,30,40,50))
+Bt
+
+A<-rbind(c(0,1,0,1,0),c(1,0,1,0,1),c(0,1,0,1,0),c(0,1,0,1,0),c(1,0,1,1,0))
+A
+
+a<-(A%*%B)
+a
+b<-(A%*%Bt)
+b
+a-b
+```
+#### Las dimensiones de las matrices no son compatibles 
+
+### 12. Considere...
+
+```{r}
+x <-rbind (c(1,1),c(1,-1),c(1,0),c(1,1),c(1,2))
+x
+xt<-cbind(c(1,1),c(1,-1),c(1,0),c(1,1),c(1,2))
+xt
+
+y<-matrix(c(0,0,1,1,3),ncol=1)
+y
+
+beta<-((xt%*%x)^-1)%*%xt%*%y
+beta
+```
+
+### 13. Corre el siguiente código para cargar los vectores year y co2 en memoria
+```{r}
+data(co2)
+means = aggregate(co2, FUN = mean)
+year = as.vector(time(means))
+co2 = as.vector(means)
+dif_co2 = diff(co2)
+
+x = c(50:59)
+y = c(2,9,25,3,100,77,62,54,19,40)
+plot(year[-1],
+     dif_co2, 
+     pch = 23, 
+     cex = 1, 
+     col = "blueviolet", 
+     type = "b", 
+     bg = "black", 
+     lwd = 2, 
+     xaxp = c(1960,2020,60),
+     main = "Diferencias consecutivas de CO2 1959 - 1997",
+     xlab = "AÃ±os",
+     ylab = "CO2 [ppm]",
+     xlim = c(1960, 2020),
+     ylim = c(0, 3))
+points(2020, 2.64, col = "red", cex = 2, pch = 4)
+arrows(2016.5,1.8,2019.5,2.5, col = " blue", length = 0.3, angle = 5, code = 2, lty = 1)
+text(2016, 1.7, labels = c("Diferencia en 2020"), cex = 0.8)
+```
+
+### 14
+```{r}
+rain = read.csv("C:/Users/LENOVO/Desktop/PROGRA/TAREAS/rainfall.csv")
+rain = rain[,3:12]
+x = c()
+for(i in 1:nrow(rain)){
+  if(sum(rain[i,1:9] > 180) >= 1) {
+    x = append(x, rain[i,10])
+  }
+}
+x  
+```
+
+
+
