@@ -1,6 +1,6 @@
 ---
 title: "Tarea 1"
-author: "Alonso Delgado,"
+author: "Jefferson Cifuentes, Alonso Delgado, Ray Vasquez"
 date: "18/11/2021"
 output:
   html_document: default
