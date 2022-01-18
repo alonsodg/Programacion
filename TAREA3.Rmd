@@ -1,0 +1,196 @@
+---
+title: "TAREA 3"
+author: "Jefferson Cifuentes, Alonso Delgado, Ray Vasquez"
+date: "18/1/2022"
+output: html_document
+---
+
+
+```{r}
+library(nycflights13)
+library(dplyr)
+library(tidyverse)
+```
+# 9.1 Parte 1: Dplyr - filter
+
+## 1. Encuentra todos los vuelos que:
+### Tuvieron un retraso de llegada de dos o más horas
+```{r}
+flights %>% filter(arr_delay>=2)
+```
+### Volaron a Houston (IAH oHOU)
+```{r}
+flights %>% filter(dest%in%c("IAH","HOU"))
+```
+### Fueron operados por United, American o Delta
+```{r}
+flights %>% filter(carrier %in% c("UA","AA","DL"))
+```
+### Partieron en invierno del hemisferio sur (julio, agosto y septiembre)
+```{r}
+flights%>% filter(month %in% c(7,8,9))
+```
+### Llegaron más de dos horas tarde, pero no salieron tarde
+```{r}
+flights%>% filter(dep_delay==0,arr_delay >=2)
+```
+### Se retrasaron por lo menos una hora, pero repusieron más de 30 minutos en vuelo
+```{r}
+flights %>% filter(dep_delay>=1)
+```
+### Partieron entre la medianoche y las 6 a.m. (incluyente)
+```{r}
+flights %>% filter(hour<=6)
+```
+## 2. Otra función de dplyr que es útil para usar filtros es between().
+### ¿Qué hace? 
+
+#### Sirve para poder filtrar los datos en un rango de valores
+
+### ¿Puedes usarla para simplificar el código necesario para responder a los desafíos anteriores?
+```{r}
+a<- flights$hour[between(flights$hour,0,6)]
+flights %>%  filter(hour==a)
+View(flights %>%  filter(hour==a))
+```
+## 3 ¿Cuántos vuelos tienen datos faltantes en horario_salida? 
+```{r}
+library(naniar)
+n_miss(flights$dep_time)
+```
+### ¿Qué otras variables tienen valores faltantes? ¿Qué representan estas filas?
+```{r}
+any_na(flights$year)
+any_na(flights$month)
+any_na(flights$day)
+any_na(flights$dep_time)
+any_na(flights$sched_dep_time)
+any_na(flights$dep_delay)
+any_na(flights$arr_time)
+any_na(flights$sched_arr_time)
+any_na(flights$arr_delay)
+any_na(flights$carrier)
+any_na(flights$flight)
+any_na(flights$tailnum)
+any_na(flights$origin)
+any_na(flights$dest)
+any_na(flights$air_time)
+any_na(flights$hour)
+any_na(flights$distance)
+any_na(flights$minute)
+any_na(flights$time_hour)
+```
+# 9.2 Parte 2: Dplyr - arrange
+
+## 1 ¿Cómo podrías usar arrange() para ordenar todos los valores faltantes al comienzo?
+```{r}
+arrange(flights, desc(is.na(dep_time)))
+```
+## 2 Ordena vuelos para encontrar los vuelos más retrasados. Encuentra los vuelos que salieron más temprano.
+```{r}
+arrange(flights, desc(dep_delay))
+arrange(flights, dep_delay)
+```
+## 3 Ordena vuelos para encontrar los vuelos más rápidos (que viajaron a mayor velocidad).
+### velocidad=distancia/tiempo
+```{r}
+View(arrange(flights, distance))
+arrange(flights, desc(distance/air_time))
+```
+## 4 ¿Cuáles vuelos viajaron más lejos? ¿Cuál viajó más cerca?
+```{r}
+arrange(flights, desc(distance))
+View(arrange(flights, desc(distance)))
+
+arrange(flights, distance)
+View(arrange(flights, distance))
+```
+### Viajaron mas lejos los que partieron del aeropuerto JFK con destino al aeropuerto HNL (4983 millas).
+### Viajo mas cerca el que partio del aeropuerto EWR con destino al aeropuerto LGA (17 millas).
+
+# 9.3  Parte 3: Dplyr - select
+
+## 1. Una lluvia de ideas de tantas maneras como sea posible para seleccionar dep_time, dep_delay, arr_time, y arr_delay de flights()
+```{r}
+seleccion <- select(flights, salida = dep_time,  llegada = arr_time, retrasos_salida = dep_delay,
+                    retraso_llegada = arr_delay)
+seleccion
+```
+
+## 2. ¿Qué sucede si incluye el nombre de una variable varias veces en una select()?
+```{r}
+prueba <- select(flights, dest, dest, dest)
+prueba
+```
+
+# 9.4  Parte 4: Dplyr - mutate
+
+## 1. Las variables horario_salida y salida_programada tienen un formato conveniente para leer, pero es difícil realizar cualquier cálculo con ellas porque no son realmente números continuos. Transfórmalas hacia un formato más conveniente como número de minutos desde la medianoche.
+
+### Los datos de estas variables son de tal forma que las 6:59 AM toman el valor 659. Luego, el número de horas desde la media noche es:
+
+```{r}
+659%/%100 #division entera
+```
+### La cantidad de minutos en esas 6 horas:
+
+```{r}
+659%/%100 *60
+```
+
+### Solo queda sumar los 59 minutos:
+
+```{r}
+659 %% 100 #resto
+```
+
+### Entonces, el número de minutos transcurridos desde las 00:00 hasta las 6:59 AM son:
+
+```{r}
+659 %/% 100 * 60 + 659 %% 100 
+```
+
+### Sin embargo, la medianoche toma el valor 24:00 con lo cual el número de minutos desde la medianoche es 1440 en lugar de 0. Para resolver esto usamos nuevamente `%%`.
+
+```{r}
+(659 %/% 100 * 60 + 659 %% 100) %% 1440 #mismo resultado anterior
+(2400 %/% 100 * 60 + 2400 %% 100) %% 1440 #cero minutos desde la medianoche
+```
+
+```{r}
+flights
+mutate(flights, salida_programada_min = (sched_dep_time %/% 100 * 60 + sched_dep_time %% 100) %% 1440)
+mutate(flights, horario_salida_min = (dep_time %/% 100 * 60 + dep_time %% 100) %% 1440)
+```
+
+## 2. Compara tiempo_vuelo con horario_llegada - horario_salida. ¿Qué esperas ver? ¿Qué ves? ¿Qué necesitas hacer para arreglarlo?
+
+### Lo que se espera es que `tiempo_vuelo` = `horario_llegada` - `horario_salida`.
+
+## 3. Compara horario_salida, salida_programada, y atraso_salida. ¿Cómo esperarías que esos tres números estén relacionados?
+
+### `salida programada` + `atraso_salida` = `horario_salida`
+
+## 5. ¿Qué devuelve 1:3 + 1:10? ¿Por qué?
+
+```{r}
+1:3 + 1:10
+class(1:3 + 1:10)
+# Devuelve un "intenger" ya que la longitud del objeto más largo no es un múltiplo de la longitud del objeto más corto.
+```
+
+## 6. ¿Qué funciones trigonométricas proporciona R?
+
+### Seno en R, Coseno en R, Tangente en R y Cotangente en R
+
+# 9.6 Parte 7: Dplyr - transformaciones agrupadas
+
+## 6. Mira cada destino. ¿Puedes encontrar vuelos sospechosamente rápidos? (es decir, vuelos que representan un posible error de entrada de datos). Calcula el tiempo en el aire de un vuelo relativo al vuelo más corto a ese destino. ¿Cuáles vuelos se retrasaron más en el aire?
+```{r}
+Vuelos_rapidos = flights %>%
+  filter(air_time < 45) %>%
+  arrange(desc(air_time)) %>% 
+  head(10)
+
+Vuelos_rapidos
+```
