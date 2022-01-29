@@ -1,0 +1,368 @@
+---
+title: "TAREA 4"
+author: "Jefferson Cifuentes, Alonso Delgado, Ray Vasquez"
+date: "27/1/2022"
+output:
+  html_document: default
+  pdf_document: default
+---
+```{r}
+library(datos)
+library(tidyverse)
+```
+# 10. Ejercicios: ggplot2
+## Cargar la data millas del paquete datos
+
+## 10.1 Parte 1: Ggplot base
+### Ejecuta ggplot(data = millas). ¿Qué observas?
+
+```{r}
+ggplot(data = millas)
+```
+
+#### Este código crea un gráfico “vacío”. Solo se ve el fondo, pero no se dibuja nada sobre él porque no se han especificado las otras dos capas mínimas: aes() para mapear las variables y geom_*() para indicar la representación gráfica a utilizar.
+
+### ¿Cuántas filas hay en millas? ¿Cuántas columnas?
+```{r}
+nrow(millas)
+ncol(millas)
+```
+#### Hay 234 filas y 11 columnas en el dataset millas.
+
+### ¿Qué describe la variable traccion? Lee la ayuda de ?millas para encontrar la respuesta.
+```{r}
+unique(millas$traccion)
+```
+#### traccion esa una variable categórica que clasifica los vehículos en tracción delantera, trasera o de cuatro ruedas.
+
+### Realiza un gráfico de dispersión de autopista versus cilindros.
+```{r}
+ggplot(millas, aes(x = autopista, y = cilindros)) +
+  geom_point()
+```
+
+### ¿Qué sucede cuando haces un gráfico de dispersión (scatterplot) de clase versus traccion? ¿Por qué no es útil este gráfico?
+```{r}
+ggplot(millas, aes(x = clase, y = traccion)) +
+  geom_point()
+```
+#### El gráfico resultante tiene pocos puntos. Ambas variables son categóricas y por lo tanto existe una cantidad limitada de combinaciones posibles.
+#### Llegaron más de dos horas tarde, pero no salieron tarde
+
+## 10.2. Parte 2: Mapeos estéticos
+### ¿Qué no va bien en este código? ¿Por qué hay puntos que no son azules?
+###  ggplot(data = millas) +
+###    geom_point(mapping = aes(x = cilindrada, y = autopista, color = "blue"))
+```{r}
+ggplot(data = millas) +
+     geom_point(mapping = aes(x = cilindrada, y = autopista), color = "blue")
+```
+
+#### Se incluyó el color dentro de aes(), por lo cual se trata como una variable, lo cual sería útil si tuvieramos una columna con información de los colores. Para dejar todos los puntos en color azul, se debe cambiar el orden de los parámetros
+
+### ¿Qué variables en millas son categóricas? ¿Qué variables son continuas? (Pista: escribe ?millas para leer la documentación de ayuda para este conjunto de datos). ¿Cómo puedes ver esta información cuando ejecutas millas?
+
+#### Variables categóricas: modelo, transmisión, tracción, combustible y clase.
+
+#### Variables continuas: cilindrada, año, cilindros, ciudad, autopista.
+
+### Asigna una variable continua a color, size, y shape. ¿Cómo se comportan estas estéticas de manera diferente para variables categóricas y variables continuas?
+
+#### Una posibilidad es graficar rendimiento de combustible en autopista dado el tipo de motor. Como información adicional usamos el rendimiento en ciudad como color, de modo de contar con una paleta de colores informativa.
+
+### ¿Qué ocurre si asignas o mapeas la misma variable a múltiples estéticas?
+```{r}
+ggplot(millas, aes(x = cilindrada, y = autopista, colour = autopista, size = autopista)) +
+  geom_point()
+```
+#### R va a generar un gráfico con información redundante, lo cual se debiera evitar.
+
+### ¿Qué hace la estética stroke? ¿Con qué formas trabaja? (Pista: consulta ?geom_point)
+```{r}
+ggplot(mtautos, aes(peso, millas)) +
+  geom_point(shape = 21, colour = "black", fill = "white", size = 5, stroke = 5)
+```
+#### Cambia el tamaño de los bordes de las formas 21 a 25. Para estas formas es posible cambiar el color de relleno y borde y también el tamaño de los bordes.
+
+### ¿Qué ocurre si se asigna o mapea una estética a algo diferente del nombre de una variable, como aes(color = cilindrada < 5)?
+```{r}
+ggplot(millas, aes(x = cilindrada, y = autopista, colour = cilindrada < 5)) +
+  geom_point()
+```
+#### R crea una variable temporal que da cuenta de la evaluación de la variable. En el caso de cilindrada < 5 el resultado es verdadero o falso y según esto se incluyen los colores en el gráfico.
+
+## 10.3 Parte 3: Facetas
+### ¿Qué ocurre si intentas separar en facetas una variable continua?
+```{r}
+ggplot(millas, aes(x = cilindros, y = autopista)) +
+  geom_point() +
+  facet_grid(. ~ ciudad)
+```
+#### La variable continua es convertida a una variable categórica y el gráfico contiene una faceta para cada valor.
+
+### ¿Qué significan las celdas vacías que aparecen en el gráfico generado usando facet_grid(traccion ~ cilindros)? ¿Cómo se relacionan con este gráfico?
+### ggplot(data = millas) +
+###   geom_point(mapping = aes(x = traccion, y = cilindros)) 
+```{r}
+ggplot(data = millas) +
+  geom_point(mapping = aes(x = autopista, y = ciudad)) +
+  facet_grid(traccion ~ cilindros)
+```
+#### Las celdas vacías (facetas) en este gráfico corresponden a combinaciones de traccion y cilindros que no tienen observaciones. 
+```{r}
+ggplot(data = millas) +
+  geom_point(mapping = aes(x = autopista, y = ciudad))
+```
+#### Son las mismas ubicaciones en el gráfico de dispersión de autopista y ciudad que no tienen gráfica.
+
+### ¿Qué grafica el siguiente código? ¿Qué hace . ?
+### ggplot(data = millas) +
+###   geom_point(mapping = aes(x = cilindrada, y = autopista)) +
+###   facet_grid(traccion ~ .)
+
+### ggplot(data = millas) +
+###   geom_point(mapping = aes(x = cilindrada, y = autopista)) +
+###   facet_grid(. ~ cilindros)
+
+```{r}
+  ggplot(data = millas) +
+  geom_point(mapping = aes(x = cilindrada, y = autopista)) +
+  facet_grid(traccion ~ .)
+```
+#### El símbolo . ignora la dimensión al momento de dibujar las facetas. Por ejemplo, autopista ~ . divide por los valores de autopista en el eje y.
+```{r}
+ggplot(data = millas) +
+  geom_point(mapping = aes(x = cilindrada, y = autopista)) +
+  facet_grid(. ~ cilindros)
+```
+#### A la vez, . ~ cilindrada va a dividir por los valores de cyl en el eje x.
+
+### Mira de nuevo el primer gráfico en facetas presentado en esta sección:
+### ggplot(data = millas) +
+###   geom_point(mapping = aes(x = cilindrada, y = autopista)) +
+###   facet_wrap(~ clase, nrow = 2)
+
+### ¿Cuáles son las ventajas de separar en facetas en lugar de aplicar una estética de color? ¿Cuáles son las desventajas? ¿Cómo cambiaría este balance si tuvieras un conjunto de datos más grande? - Lee ?facet_wrap. ¿Qué hace nrow? ¿Qué hace ncol? ¿Qué otras opciones controlan el diseño de los paneles individuales? ¿Por qué facet_grid() no tiene argumentos nrow y ncol? - Cuando usas facet_grid(), generalmente deberías poner la variable con un mayor número de niveles únicos en las columnas. ¿Por qué?
+```{r}
+ggplot(data = millas) +
+  geom_point(mapping = aes(x = cilindrada, y = autopista, color = clase))
+```
+
+#### En el siguiente gráfico muestra la variable clase como color. La ventaja de usar clase como parte de las facetas en lugar de un argumento de color es la posibilidad de incluir distintas categorías. La desventaja de usar clase para las facetas en lugar del argumento de color es la dificultad de comparar valores entre categorías dado que las observaciones para cada categoría se ubican en distintos gráficos. Los beneficios de codificar una variable mediante el color son crecientes si aumenta la cantidad de observaciones o el número de categorías. Si aumenta el número de categorías puede haber superposición y resulta complejo manejar esto con argumentos de color a menos que el número de observaciones sea pequeño y se pueda usar un argumento de distorsión (jitter)
+#### Los argumentos nrow y ncol determinan el número de filas y columnas al momento de generar las facetas. facet_wrap() opera sobre una única variable.
+#### nrow y ncol no son necesarios con facet_grid ya que el número de valores únicos en la función determina e
+
+
+
+## 10.4 Parte 4: Objetos geométricos
+
+### ¿Qué geom usarías para generar un gráfico de líneas? ¿Y para un diagrama de caja? ¿Y para un histograma? ¿Y para un gráfico de área?
+
+#### geom_line()
+#### geom_boxplot()
+#### geom_histogram()
+#### geom_area()
+
+#### Gráfico de líneas, diagrama de cajas, histograma, gráfico de área. 
+
+### Ejecuta este código en tu mente y predice cómo se verá el output. Luego, ejecuta el código en R y verifica tus predicciones.
+### ggplot(data = millas, mapping = aes(x = cilindrada, y = autopista, color = traccion)) +
+### geom_point() +
+### geom_smooth(se = FALSE)
+```{r}
+ggplot(data = millas, mapping = aes(x = cilindrada, y = autopista, colour = traccion)) +
+  geom_point() +
+  geom_smooth(se = FALSE)
+```
+
+#### El resultado es un diagrama de dispersión con cilindrada en el eje x, autopista en el eje y y los puntos pintados de acuerdo a traccion. También se incluirá una línea de tendencia, sin el error estándar, para cada grupo de traccion.
+
+
+## 10.5 Parte 5: Gráficos estadísticos
+
+### ¿Cuál es el geom predeterminado asociado con stat_summary()? ¿Cómo podrías reescribir el gráfico anterior para usar esa función geom en lugar de la función stat?
+```{r}
+ggplot(data = diamantes) +
+  stat_summary(
+    mapping = aes(x = corte, y = profundidad),
+    fun.ymin = min,
+    fun.ymax = max,
+    fun.y = median
+  )
+
+ggplot(data = diamantes) +
+  geom_pointrange(
+    mapping = aes(x = corte, y = profundidad),
+    stat = "summary",
+    fun.ymin = min,
+    fun.ymax = max,
+    fun.y = median
+  )
+```
+### ¿Qué hace geom_col()? ¿En qué se diferencia de geom_bar()?
+
+#### geom_col() usa stat_identity(), que deja los datos sin transformar.
+
+#### geom_col() espera que los datos contengan los valores de x y los valores de y que representan la altura de las columnas.
+
+#### geom_bar() usa stat_bin() y espera únicamente los valores de x.
+
+#### stat_bin(), procesa los datos de entrada y realiza un conteo del número de observaciones para cada valor de x, lo cual genera la variable y internamente.
+
+### La mayoría de los geoms y las transformaciones estadísticas vienen en pares que casi siempre se usan en conjunto. Lee la documentación y haz una lista de todos los pares. ¿Qué tienen en común?
+
+####    geometría           estadístico 
+####    geom_bar()          stat_count()
+####    geom_bin2d()        stat_bin_2d()
+####    geom_boxplot()      stat_boxplot()
+####    geom_contour()      stat_contour()
+####    geom_count()        stat_sum()
+####    geom_density()      stat_density()
+####    geom_density_2d()   stat_density_2d()
+####    geom_hex()          stat_hex()
+####    geom_freqpoly()     stat_bin()
+####    geom_histogram()    stat_bin()
+####    geom_qq_line()      stat_qq_line()
+####    geom_qq()           stat_qq()
+####    geom_quantile()     stat_quantile()
+####    geom_smooth()       stat_smooth()
+####    geom_violin()       stat_violin()
+####    geom_sf()           stat_sf()
+
+### ¿Qué variables calcula stat_smooth()? ¿Qué parámetros controlan su comportamiento?
+
+#### La función stat_smooth() calcula las siguientes variables:
+#### y: valor predicho
+#### ymin: menor valor del intervalo de confianza
+#### ymax: mayor valor del intervalo de confianza
+#### se: error estándar
+
+#### Los parámetros que controlan stat_smooth() incluyen
+
+#### method: cuál método utilizar
+#### formula: las fórmulas, al igual que method, determinan cómo se hará el cálculo del intervalo de confianza y los argumentos adicionales que se requieran.
+#### na.rm: si acaso se eliminarán los casos perdidos
+
+### En nuestro gráfico de barras de proporción necesitamos establecer group = 1. ¿Por qué? En otras palabras, ¿cuál es el problema con estos dos gráficos?
+```{r}
+ggplot(data = diamantes) +
+  geom_bar(mapping = aes(x = corte, y = ..prop..))
+
+ggplot(data = diamantes) +
+  geom_bar(mapping = aes(x = corte, fill = color, y = ..prop..))
+  
+ggplot(data = diamantes) +
+  geom_bar(mapping = aes(x = corte, y = ..prop.., group = 1))
+  
+ggplot(data = diamantes) + 
+  geom_bar(aes(x = corte, y = ..count.. / sum(..count..), fill = color))
+```
+
+
+
+## 10.6 Parte 6: Ajuste de posición
+
+### ¿Cuál es el problema con este gráfico? ¿Cómo podrías mejorarlo?
+### ggplot(data = millas, mapping = aes(x = ciudad, y = autopista)) +
+### geom_point()
+
+#### Existe superposición ya que hay múltiples observaciones para cada combinación de ciudad y autopista.
+#### Se puede mejorar el gráfico usando el argumento de distorsión y así reducir la superposición.
+```{r}
+ggplot(data = millas, mapping = aes(x = ciudad, y = autopista)) +
+  geom_point(position = "jitter")
+```
+### ¿Qué parámetros de geom_jitter() controlan la cantidad de ruido?
+
+#### A partir de la documentación de geom_jitter(), existen dos argumentos:
+
+#### width controla el desplazamiento vertical
+#### height controla el desplazamiento horizontal
+#### Los valores por defecto de width y height introducen ruido en ambas direcciones.
+
+#### Con width = 0 se elimina la distorsión horizontal.
+```{r}
+ggplot(data = millas, mapping = aes(x = ciudad, y = autopista)) +
+  geom_jitter(width = 0)
+```
+
+#### Con width = 20 se agrega mucha distorsión.
+```{r}
+ggplot(data = millas, mapping = aes(x = ciudad, y = autopista)) +
+  geom_jitter(width = 20)
+```
+
+### Compara y contrasta geom_jitter() con geom_count()
+
+#### geom_jitter() agrega una variación al azar a los puntos del gráfico, es decir que distorsiona la ubicación de los puntos en el gráfico. Este método reduce la superposición ya que es poco probable que al mover los puntos al azar estos queden en la misma ubicación. Sin embargo, el problema de reducir la superposición es que se distorsionan los valores mostrados de x e y.
+
+#### geom_count() cambia el tamaño de los puntos relativo a la cantidad de observaciones. Las combinaciones de x e y con más observaciones tendrán un mayor tamaño. Esto no distorsiona los valores, pero tiene el problema de que el tamaño de los puntos puede generar superposición si los puntos son cercanos.
+```{r}
+ggplot(data = millas, mapping = aes(x = ciudad, y = autopista)) +
+  geom_jitter()
+
+ggplot(data = millas, mapping = aes(x = ciudad, y = autopista)) +
+  geom_count()
+```
+
+### ¿Cuál es el ajuste de posición predeterminado de geom_boxplot()? Crea una visualización del conjunto de datos de millas que lo demuestre.
+
+#### La posición por defecto para geom_boxplot() es "dodge2", que es un atajo de position_dodge2.
+#### Este ajuste no cambia la posición vertical pero mueve las geometrías horizontalmente para evitar la superposición.
+#### Consulta la documentación de position_dodge2() para los detalles específicos.
+#### Si agregamos colour = clase a un diagrama de cajas, los niveles de transmision se ubican lado a lado.
+```{r}
+ggplot(data = millas, aes(x = transmision, y = autopista, colour = clase)) +
+  geom_boxplot()
+```
+
+
+
+## 10.7 Parte 7: Sistema de coordenadas
+
+### Convierte un gráfico de barras apiladas en un gráfico circular usando coord_polar().
+```{r}
+ggplot(millas, aes(x = factor(1), fill = traccion)) +
+  geom_bar()
+```
+#### Agregamos coord_polar(theta="y") para crear el gráfico de torta:
+```{r}
+ggplot(millas, aes(x = factor(1), fill = traccion)) +
+  geom_bar(width = 1) +
+  coord_polar(theta = "y")
+```
+
+### Qué hace labs()? Lee la documentación.
+
+#### labs agrega los títulos de los ejes, título del gráfico y la leyenda.
+```{r}
+ggplot(data = millas, mapping = aes(x = clase, y = autopista)) +
+  geom_boxplot() +
+  coord_flip() +
+  labs(y = "Millas por Galón en Autopista",
+       x = "Clase",
+       title = "Millas por Galón en Autopista por Tipo de Vehículo",
+       subtitle = "1999-2008",
+       caption = "Fuente: http://fueleconomy.gov")
+```
+### ¿Cuál es la diferencia entre coord_quickmap() y coord_map()?
+
+#### coord_map() usa una proyección cartográfica para proyectar la Tierra sobre una superficie bidimensional. Por defecto usa la Proyección de Mercator, la cual se aplica a todas las geometrías del gráfico.
+#### coord_quickmap() usa una aproximación más rápida que ignora la curvatura de la tierra y ajusta de acuerdo a la razón de latitud y longitud. Esta es una alternativa computacionalmente más rápida que no genera la necesidad de transformar las geometrías individuales.
+
+### ¿Qué te dice la gráfica siguiente sobre la relación entre ciudad y autopista? ¿Por qué es coord_fixed() importante? ¿Qué hace geom_abline()?
+
+### ggplot(data = millas, mapping = aes(x = ciudad, y = autopista)) +
+### geom_point() +
+### geom_abline() +
+### coord_fixed()
+
+#### La función coord_fixed() asegura que la línea que genera geom_abline() tenga un ángulo de 45 grados. De este modo es más fácil comparar a partir de los casos en que los rendimientos en autopista y ciudad son iguales.
+```{r}
+ggplot(data = millas, mapping = aes(x = ciudad, y = autopista)) +
+  geom_point() +
+  geom_abline() +
+  coord_fixed()
+```
+
+
