@@ -1,0 +1,34 @@
+---
+title: "TerraResumen"
+author: "Alonso Delgado"
+date: "31/1/2022"
+output: html_document
+---
+
+# Resumen de la librería Terra
+
+## El paquete Terra tiene funciones para crear, leer y manipular datos raster. Tiene funciones para crear Spatrasters, combinarlos, seleccionar un subconjunto, agrandar un spatraster, etc. Además Terra guarda cierto parecido con la librería Raster, sin embargo se podría decir que Terra vendría a ser una versión mejorada ya que puede realizar procesos de forma mas rápida, las funciones de entre estas librerías son muy parecidas y algunas son iguales.
+
+## Algunas funciones básicas
+
+```{r}
+library(terra)
+
+r <- rast(ncol=3, nrow=2)
+values(r) <- 1:ncell(r)
+values(r)
+
+s <- app(r, fun=function(x){ x[x < 4] <- NA; return(x)} )
+as.matrix(s)
+
+t <- lapp(c(r, s), fun=function(x, y){ x / (2 * sqrt(y)) + 5 } )
+as.matrix(t)
+
+u <- mask(r, t)
+as.matrix(u)
+
+
+w <- cover(t, r)
+as.matrix(w)
+```
+
