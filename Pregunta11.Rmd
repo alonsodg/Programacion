@@ -1,0 +1,17 @@
+---
+title: "Pregunta 11"
+author: "Alonso Delgado"
+date: "31/1/2022"
+output: html_document
+---
+
+# 11
+```{r}
+tc <- function(L, J) {
+ tc = 0.3*(L/(J)^(1/4))^0.76
+ return(tc)
+}
+(190+80)/2
+tc(1200, 135)
+```
+
